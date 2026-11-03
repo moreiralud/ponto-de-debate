@@ -25,7 +25,7 @@ export async function generateMediation(prompt: string): Promise<string> {
         generationConfig: {
           temperature: 0.2,
           topP: 0.85,
-          maxOutputTokens: 650,
+          maxOutputTokens: 800,
         },
       });
 

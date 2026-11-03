@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
           ? `ESTA MENSAGEM É UMA RESPOSTA DIRETA A:\n[${replyTo.sender}]: "${replyTo.text}"\n\n`
           : "";
 
-        const prompt = `Analise a mensagem mais recente enviada no chat:
+        const prompt = `Analise a mensagem mais recente enviada no grupo de debate:
 
 ${replyInfo}MENSAGEM ATUAL:
 "${text || 'Faça uma síntese do debate recente'}"
@@ -87,11 +87,17 @@ HISTÓRICO RECENTE:
 ${recentChat}
 ---
 
-Instruções fundamentais:
-- ENFRENTE A ACUSAÇÃO/RESPOSTA DIRETAMENTE: Se a pessoa está rebatendo alguém, avalie se a tréplica tem sustentação factual ou se comete falácias.
-- DADOS CONCRETOS OBRIGATÓRIOS: Traga os escândalos reais, votações na Câmara/Assembleias, cassações, decisões do STF ou dados do IBGE/Inep.
-- LINKS COM MÁSCARA CLICÁVEL: Ex: [Fonte: ALESP](https://www.alesp.sp.gov.br), [Fonte: Câmara](https://www.camara.leg.br), [Fonte: Inep/MEC](https://www.gov.br/inep).
-- Dê o veredito factual sem covardia e sem floreios acadêmicos.`;
+Instruções de Linguagem e Formato (Conversa entre amigos, sem jargões acadêmicos):
+1. Comece respondendo diretamente à questão. Use frases curtas e palavras comuns.
+2. Explique termos políticos difíceis se aparecerem.
+3. Apresente no máximo 3 ou 4 argumentos principais e use exemplos concretos.
+4. Diferencie fatos comprovados, interpretações e opiniões.
+5. Traga 1 ou 2 fontes confiáveis com links clicáveis mascarados (ex: [Fonte: Órgão](URL)).
+6. Respeite rigorosamente a estrutura de 4 partes:
+   *1. O que está sendo discutido?*
+   *2. O argumento tem fundamento?*
+   *3. Principais pontos a considerar:*
+   *4. Veredito resumido:*`;
 
         const mediatorText = await generateMediation(prompt);
 
