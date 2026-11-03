@@ -1,0 +1,30 @@
+{
+  "geral": {
+    "messages": [
+      {
+        "id": "welcome-1793729040429",
+        "sender": "🏛️ Mediador (Ponto de Debate)",
+        "text": "🔒 *Sala Reiniciada em Modo 100% Anônimo.*\nNenhum nome é rastreado. Foquem nos argumentos. Usem *@mediador* para checagem factual.",
+        "timestamp": 1793729040429,
+        "type": "mediator"
+      },
+      {
+        "id": "msg-1793729119441-qekphi",
+        "sender": "Participante #31",
+        "text": "sou a favor das cotas e acho um absurdo quem nao é, pq isso é nao reconhecer o brasil em sua profundidade",
+        "timestamp": 1793729119441,
+        "type": "user",
+        "avatarColor": "#fbbf24"
+      },
+      {
+        "id": "msg-1793729132339-j11zu9",
+        "sender": "🏛️ Árbitro do Debate",
+        "text": "🏛️ *Árbitro do Debate*\n\n• *A ideia real:* Defesa das cotas sociais e raciais como ferramenta essencial para corrigir desigualdades históricas no país.\n• *O que os dados mostram:* Alunos cotistas em universidades públicas têm desempenho acadêmico equivalente ou até superior ao dos demais estudantes, segundo estudos de inclusão — [Fonte: Inep/MEC](https://www.gov.br/inep).\n• *Para pensar:* Como podemos acelerar a inclusão de quem teve menos oportunidades sem abrir mão da qualidade na educação?",
+        "timestamp": 1793729132339,
+        "type": "mediator",
+        "avatarColor": "#0f172a"
+      }
+    ],
+    "lastUpdated": 1793729132339
+  }
+}
