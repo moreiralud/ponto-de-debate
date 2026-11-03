@@ -23,8 +23,40 @@
         "timestamp": 1793729132339,
         "type": "mediator",
         "avatarColor": "#0f172a"
+      },
+      {
+        "id": "msg-1793730984639-dqk5l2",
+        "sender": "Participante #10",
+        "text": "O MBL só surgiu por causa do impeachment e não tem coerência nenhuma",
+        "timestamp": 1793730984639,
+        "type": "user",
+        "avatarColor": "#fb7185"
+      },
+      {
+        "id": "msg-1793730986905-9rytlw",
+        "sender": "🏛️ Árbitro do Debate",
+        "text": "🏛️ *Árbitro do Debate*\n\n• *A ideia real:* Crítica de que o movimento político em questão nasceu apenas de um momento específico e muda de lado sem firmeza.\n• *O que os dados mostram:* A atuação de grupos políticos e fundações é registrada em bases oficiais de transparência e prestação de contas — [Fonte: CGU](https://www.gov.br/cgu).\n• *Para pensar:* Um grupo político pode mudar de pautas ao longo dos anos e ainda assim manter uma identidade clara para seus eleitores?",
+        "timestamp": 1793730986905,
+        "type": "mediator",
+        "avatarColor": "#0f172a"
+      },
+      {
+        "id": "msg-1793731035888-2fy9m2",
+        "sender": "Participante #10",
+        "text": "O MBL só surgiu por causa do impeachment e não tem coerência nenhuma",
+        "timestamp": 1793731035888,
+        "type": "user",
+        "avatarColor": "#fb7185"
+      },
+      {
+        "id": "msg-1793731038193-xsgmuc",
+        "sender": "🏛️ Árbitro do Debate",
+        "text": "🏛️ *Árbitro do Debate*\n\n• *O que é fato sobre o tema:*\n  - O Movimento Brasil Livre (MBL), liderado por figuras como Renan Santos e o deputado federal Kim Kataguiri ([Fonte: Câmara dos Deputados](https://www.camara.leg.br)), surgiu em 2014 encabeçando protestos pelo impeachment da ex-presidente Dilma Rousseff ([Fonte: Portal da Legislação](https://www.planalto.gov.br)).\n  - O grupo apoiou a eleição de Jair Bolsonaro no segundo turno de 2018, mas rompeu formalmente com o governo em 2019, convocou manifestações pelo impeachment de Bolsonaro em 2021, declarou voto nulo no segundo turno de 2022 ([Fonte: TSE](https://www.tse.jus.br)) e atualmente coleta assinaturas para registrar oficialmente o partido político \"Missão\".\n\n• *A divergência real:* O confronto ocorre entre a acusação de oportunismo político e a defesa do movimento de que suas mudanças de aliança refletem independência em relação aos governos de plantão.",
+        "timestamp": 1793731038193,
+        "type": "mediator",
+        "avatarColor": "#0f172a"
       }
     ],
-    "lastUpdated": 1793729132339
+    "lastUpdated": 1793731038193
   }
 }

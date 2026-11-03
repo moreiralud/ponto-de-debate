@@ -72,10 +72,10 @@ ${recentChat}
 ---
 
 Instruções:
-- Linguagem simples, popular e acessível (zero jargão acadêmico difícil).
-- Seja breve: exatamente 3 tópicos (A ideia real, O que os dados mostram, Para pensar).
-- 100% ANÔNIMO: Nunca cite nomes de pessoas.
-- SEMPRE inclua o link da fonte oficial com máscara clicável, por exemplo: [Fonte: IBGE](https://www.ibge.gov.br), [Fonte: Ipea](https://www.ipea.gov.br), [Fonte: Inep/MEC](https://www.gov.br/inep), [Fonte: Receita Federal](https://www.gov.br/receitafederal) ou [Fonte: CGU](https://www.gov.br/cgu).`;
+- PROIBIDO PLATITUDES OU GENERALISMOS (como "isso é debatido publicamente").
+- Traga DADOS REAIS E ESPECÍFICOS: cite fatos históricos reais, votos no Congresso, datas, leis ou decisões institucionais sobre os atores envolvidos (MBL, PT, Renan Santos, Lula, etc.).
+- Inclua links oficiais com máscara clicável: [Fonte: Câmara](https://www.camara.leg.br), [Fonte: TSE](https://www.tse.jus.br), [Fonte: Planalto](https://www.planalto.gov.br), [Fonte: IBGE](https://www.ibge.gov.br).
+- Linguagem simples, direta e sem lição de moral.`;
 
         const mediatorText = await generateMediation(prompt);
 
