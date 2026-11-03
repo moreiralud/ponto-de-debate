@@ -93,7 +93,8 @@ Instruções de Linguagem e Formato (Conversa entre amigos, sem jargões acadêm
 3. Apresente no máximo 3 ou 4 argumentos principais e use exemplos concretos.
 4. Diferencie fatos comprovados, interpretações e opiniões.
 5. Traga 1 ou 2 fontes confiáveis com links clicáveis mascarados (ex: [Fonte: Órgão](URL)).
-6. Respeite rigorosamente a estrutura de 4 partes:
+6. REGRA CONTRA FALSA EQUIVALÊNCIA: Não tente fabricar equilíbrio artificial entre os dois lados. Não presuma eficácia igual entre propostas. Não confunda discurso ou justificativa ideológica com solução prática. Se faltarem dados, afirme com clareza.
+7. Respeite rigorosamente a estrutura de 4 partes:
    *1. O que está sendo discutido?*
    *2. O argumento tem fundamento?*
    *3. Principais pontos a considerar:*
