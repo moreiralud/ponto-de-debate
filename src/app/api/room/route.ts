@@ -71,11 +71,11 @@ HISTÓRICO RECENTE:
 ${recentChat}
 ---
 
-Instruções:
-- PROIBIDO PLATITUDES OU GENERALISMOS (como "isso é debatido publicamente").
-- Traga DADOS REAIS E ESPECÍFICOS: cite fatos históricos reais, votos no Congresso, datas, leis ou decisões institucionais sobre os atores envolvidos (MBL, PT, Renan Santos, Lula, etc.).
-- Inclua links oficiais com máscara clicável: [Fonte: Câmara](https://www.camara.leg.br), [Fonte: TSE](https://www.tse.jus.br), [Fonte: Planalto](https://www.planalto.gov.br), [Fonte: IBGE](https://www.ibge.gov.br).
-- Linguagem simples, direta e sem lição de moral.`;
+Instruções fundamentais:
+- ENFRENTE A ACUSAÇÃO DIRETAMENTE: Se a mensagem diz "o MBL é misógino", "o PT é comunista" ou qualquer outra acusação, DIGA SE A ACUSAÇÃO TEM SUSTENTAÇÃO, NÃO TEM OU SE HÁ INCLINAÇÃO NA PRÁTICA.
+- DADOS CONCRETOS OBRIGATÓRIOS: Traga os escândalos reais, votações na Câmara/Assembleias, cassações (como o caso Arthur do Val na ALESP), decisões do STF ou dados do IBGE/Inep.
+- LINKS COM MÁSCARA CLICÁVEL: Ex: [Fonte: ALESP](https://www.alesp.sp.gov.br), [Fonte: Câmara](https://www.camara.leg.br), [Fonte: Inep/MEC](https://www.gov.br/inep).
+- Dê o veredito factual sem covardia e sem floreios acadêmicos.`;
 
         const mediatorText = await generateMediation(prompt);
 
