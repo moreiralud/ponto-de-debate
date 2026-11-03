@@ -4,6 +4,7 @@ import {
   addMessageToRoomAsync,
   clearRoomAsync,
   ChatMessage,
+  ReplyContext,
 } from "@/lib/room-store";
 import { generateMediation } from "@/lib/gemini";
 
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     const sender = (body.sender || "Participante Anônimo").trim();
     const text = (body.text || "").trim();
     const triggerExplicit = Boolean(body.triggerMediation);
+    const replyTo: ReplyContext | undefined = body.replyTo;
 
     if (!text && !triggerExplicit) {
       return NextResponse.json(
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     let userMessage: ChatMessage | null = null;
     if (text) {
-      userMessage = await addMessageToRoomAsync(roomId, sender, text, "user");
+      userMessage = await addMessageToRoomAsync(roomId, sender, text, "user", replyTo);
     }
 
     const room = await getRoomAsync(roomId);
@@ -62,12 +64,21 @@ export async function POST(req: NextRequest) {
       try {
         const recentChat = room.messages
           .slice(-8)
-          .map((m) => `${m.sender}: ${m.text}`)
+          .map((m) => {
+            const replyPrefix = m.replyTo
+              ? ` [Respondendo a ${m.replyTo.sender}: "${m.replyTo.text}"]`
+              : "";
+            return `${m.sender}${replyPrefix}: ${m.text}`;
+          })
           .join("\n\n");
+
+        const replyInfo = replyTo
+          ? `ESTA MENSAGEM É UMA RESPOSTA DIRETA A:\n[${replyTo.sender}]: "${replyTo.text}"\n\n`
+          : "";
 
         const prompt = `Analise a mensagem mais recente enviada no chat:
 
-MENSAGEM:
+${replyInfo}MENSAGEM ATUAL:
 "${text || 'Faça uma síntese do debate recente'}"
 
 HISTÓRICO RECENTE:
@@ -76,8 +87,8 @@ ${recentChat}
 ---
 
 Instruções fundamentais:
-- ENFRENTE A ACUSAÇÃO DIRETAMENTE: Se a mensagem diz "o MBL é misógino", "o PT é comunista" ou qualquer outra acusação, DIGA SE A ACUSAÇÃO TEM SUSTENTAÇÃO, NÃO TEM OU SE HÁ INCLINAÇÃO NA PRÁTICA.
-- DADOS CONCRETOS OBRIGATÓRIOS: Traga os escândalos reais, votações na Câmara/Assembleias, cassações (como o caso Arthur do Val na ALESP), decisões do STF ou dados do IBGE/Inep.
+- ENFRENTE A ACUSAÇÃO/RESPOSTA DIRETAMENTE: Se a pessoa está rebatendo alguém, avalie se a tréplica tem sustentação factual ou se comete falácias.
+- DADOS CONCRETOS OBRIGATÓRIOS: Traga os escândalos reais, votações na Câmara/Assembleias, cassações, decisões do STF ou dados do IBGE/Inep.
 - LINKS COM MÁSCARA CLICÁVEL: Ex: [Fonte: ALESP](https://www.alesp.sp.gov.br), [Fonte: Câmara](https://www.camara.leg.br), [Fonte: Inep/MEC](https://www.gov.br/inep).
 - Dê o veredito factual sem covardia e sem floreios acadêmicos.`;
 
@@ -88,7 +99,8 @@ Instruções fundamentais:
             roomId,
             "🏛️ Árbitro do Debate",
             mediatorText,
-            "mediator"
+            "mediator",
+            userMessage ? { id: userMessage.id, sender: userMessage.sender, text: userMessage.text } : undefined
           );
         }
       } catch (aiError: any) {

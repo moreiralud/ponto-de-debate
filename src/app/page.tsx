@@ -11,10 +11,10 @@ import {
   Sparkles,
   CheckCheck,
   Lock,
-  HelpCircle,
   X,
+  Reply,
 } from "lucide-react";
-import { ChatMessage } from "@/lib/room-store";
+import { ChatMessage, ReplyContext } from "@/lib/room-store";
 import { FormattedText } from "@/lib/formatter";
 
 const ANONYMOUS_PRESETS = [
@@ -42,6 +42,7 @@ export default function AnonymousWhatsAppChat() {
   const [isMediatorThinking, setIsMediatorThinking] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<ReplyContext | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +57,7 @@ export default function AnonymousWhatsAppChat() {
     }
     setMyAnonId(savedId);
 
-    // Carrega histórico persistente dos últimos 7 dias imediatamente do cache do aparelho
+    // Carrega histórico dos últimos 7 dias imediatamente do cache do aparelho
     try {
       const cached = localStorage.getItem("pdd_history_7d");
       if (cached) {
@@ -118,12 +119,14 @@ export default function AnonymousWhatsAppChat() {
     scrollToBottom(true);
   }, [messages.length, isMediatorThinking]);
 
-  // Envio de mensagem anônima
+  // Envio de mensagem com suporte a Reply
   const handleSendMessage = async (e?: React.FormEvent, explicitTrigger = false, overrideText?: string) => {
     if (e) e.preventDefault();
     const textToSend = overrideText !== undefined ? overrideText : inputText;
     if (!textToSend.trim() && !explicitTrigger) return;
 
+    const currentReply = replyingTo;
+    setReplyingTo(null);
     setInputText("");
     setIsSending(true);
     setIsMediatorThinking(true);
@@ -137,6 +140,7 @@ export default function AnonymousWhatsAppChat() {
           sender: myAnonId || "Participante Anônimo",
           text: textToSend.trim(),
           triggerMediation: explicitTrigger,
+          replyTo: currentReply || undefined,
         }),
       });
 
@@ -154,6 +158,15 @@ export default function AnonymousWhatsAppChat() {
       setIsMediatorThinking(false);
       inputRef.current?.focus();
     }
+  };
+
+  const handleSelectReply = (msg: ChatMessage) => {
+    setReplyingTo({
+      id: msg.id,
+      sender: msg.sender,
+      text: msg.text,
+    });
+    inputRef.current?.focus();
   };
 
   // Carregar preset anônimo
@@ -206,7 +219,7 @@ export default function AnonymousWhatsAppChat() {
                 </span>
               </h1>
               <p className="text-[11px] text-[#8696a0]">
-                {myAnonId ? `Sua voz: ${myAnonId}` : "Identidade oculta"} &bull; Toque para regras
+                {myAnonId ? `Sua voz: ${myAnonId}` : "Identidade oculta"} &bull; Histórico de 7 dias ativo
               </p>
             </div>
           </div>
@@ -252,7 +265,7 @@ export default function AnonymousWhatsAppChat() {
             <div className="bg-[#182229] border border-[#222e35] text-[#8696a0] text-[11px] px-3 py-1.5 rounded-lg max-w-md text-center shadow-sm flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>
-                <strong>Blindagem de Anonimato:</strong> Ninguém sabe quem é você. Debatam as ideias livremente sem julgamentos pessoais.
+                <strong>Blindagem de 7 Dias:</strong> Conversas anônimas salvas por uma semana. Clique na seta <strong>↩</strong> para rebater qualquer mensagem.
               </span>
             </div>
           </div>
@@ -285,8 +298,9 @@ export default function AnonymousWhatsAppChat() {
 
             if (isMediator) {
               return (
-                <div key={msg.id} className="flex justify-center my-3 w-full">
-                  <div className="w-full max-w-xl bg-[#1e293b] border-2 border-amber-500/50 rounded-2xl shadow-xl overflow-hidden animate-fadeIn">
+                <div key={msg.id} className="flex justify-center my-3 w-full group">
+                  <div className="w-full max-w-xl bg-[#1e293b] border-2 border-amber-500/50 rounded-2xl shadow-xl overflow-hidden animate-fadeIn relative">
+                    
                     {/* Header */}
                     <div className="bg-stone-900 px-3.5 py-2.5 flex items-center justify-between border-b border-stone-800">
                       <div className="flex items-center gap-2">
@@ -298,36 +312,49 @@ export default function AnonymousWhatsAppChat() {
                         </span>
                       </div>
 
-                      <button
-                        onClick={() => handleCopyText(msg.text, msg.id)}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center gap-1 transition ${
-                          copiedId === msg.id
-                            ? "bg-emerald-500 text-white"
-                            : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm"
-                        }`}
-                      >
-                        {copiedId === msg.id ? (
-                          <>
-                            <Check className="w-3 h-3" />
-                            <span>Copiado!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copiar p/ WhatsApp</span>
-                          </>
-                        )}
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        {/* Botão Responder ao Árbitro */}
+                        <button
+                          onClick={() => handleSelectReply(msg)}
+                          className="px-2 py-1 rounded text-[11px] font-medium text-stone-300 hover:text-white hover:bg-stone-800 flex items-center gap-1 transition"
+                          title="Rebater ou comentar a análise do Árbitro"
+                        >
+                          <Reply className="w-3 h-3 text-amber-400" />
+                          <span className="hidden sm:inline">Rebater</span>
+                        </button>
+
+                        {/* Copiar WhatsApp */}
+                        <button
+                          onClick={() => handleCopyText(msg.text, msg.id)}
+                          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center gap-1 transition ${
+                            copiedId === msg.id
+                              ? "bg-emerald-500 text-white"
+                              : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm"
+                          }`}
+                        >
+                          {copiedId === msg.id ? (
+                            <>
+                              <Check className="w-3 h-3" />
+                              <span>Copiado!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>Copiar</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Content (Ultra-Direto) */}
+                    {/* Content */}
                     <div className="p-3.5 sm:p-4 text-xs sm:text-sm text-[#e2e8f0] font-sans selection:bg-amber-500/30">
                       <FormattedText text={msg.text} isMediator={true} />
                     </div>
 
                     {/* Footer */}
                     <div className="px-3.5 py-1.5 bg-[#0f172a] text-[10px] text-stone-400 flex justify-between items-center">
-                      <span>Critério: Rigor de Ciência Política & Fatos Oficiais</span>
+                      <span>Critério: Rigor de Ciência Política & Fontes Oficiais</span>
                       <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     </div>
                   </div>
@@ -335,9 +362,9 @@ export default function AnonymousWhatsAppChat() {
               );
             }
 
-            // Normal User Message (100% Anonymous)
+            // Normal User Message
             return (
-              <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"} my-1.5`}>
+              <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"} my-1.5 group`}>
                 <div
                   className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3.5 py-2 text-sm shadow-sm relative ${
                     isMe
@@ -345,13 +372,36 @@ export default function AnonymousWhatsAppChat() {
                       : "bg-[#202c33] text-[#e9edef] rounded-tl-none border border-[#2a3942]"
                   }`}
                 >
-                  {/* Sender Header */}
-                  <div
-                    className="font-semibold text-xs mb-1 flex items-center gap-1"
-                    style={{ color: isMe ? "#6ee7b7" : msg.avatarColor || "#38bdf8" }}
-                  >
-                    <span>{isMe ? "Você (Anônimo)" : msg.sender}</span>
+                  {/* Sender Header + Reply Button */}
+                  <div className="flex items-center justify-between gap-3 mb-1">
+                    <span
+                      className="font-semibold text-xs flex items-center gap-1"
+                      style={{ color: isMe ? "#6ee7b7" : msg.avatarColor || "#38bdf8" }}
+                    >
+                      {isMe ? "Você (Anônimo)" : msg.sender}
+                    </span>
+
+                    {/* Botão Responder */}
+                    <button
+                      onClick={() => handleSelectReply(msg)}
+                      className="opacity-70 group-hover:opacity-100 hover:text-emerald-400 p-0.5 rounded transition"
+                      title="Responder a esta mensagem"
+                    >
+                      <Reply className="w-3.5 h-3.5" />
+                    </button>
                   </div>
+
+                  {/* Quoted Message Preview (se for um reply) */}
+                  {msg.replyTo && (
+                    <div className="bg-black/30 border-l-2 border-emerald-400 rounded p-1.5 mb-1.5 text-[11px] leading-tight">
+                      <div className="font-semibold text-emerald-300 truncate">
+                        {msg.replyTo.sender}
+                      </div>
+                      <div className="text-stone-300 line-clamp-1 truncate opacity-90">
+                        {msg.replyTo.text}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Message Body */}
                   <div className="break-words text-xs sm:text-sm">
@@ -383,6 +433,29 @@ export default function AnonymousWhatsAppChat() {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Reply Preview Bar (Acima do campo de digitação) */}
+        {replyingTo && (
+          <div className="bg-[#182229] border-t border-l-4 border-emerald-500 px-3 py-2 flex items-center justify-between text-xs text-[#8696a0] animate-fadeIn z-10">
+            <div className="truncate mr-2">
+              <span className="font-semibold text-emerald-400 block text-[11px] flex items-center gap-1">
+                <Reply className="w-3 h-3" />
+                Respondendo a {replyingTo.sender}
+              </span>
+              <span className="text-[#d1d7db] truncate block text-[11px]">
+                {replyingTo.text}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setReplyingTo(null)}
+              className="p-1 hover:text-white rounded-full hover:bg-[#2a3942] transition"
+              title="Cancelar resposta"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Input Bar */}
         <div className="bg-[#202c33] p-2 sm:p-2.5 border-t border-[#222e35]">
           <form onSubmit={(e) => handleSendMessage(e)} className="flex items-center gap-2">
@@ -406,7 +479,11 @@ export default function AnonymousWhatsAppChat() {
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Digite anonimamente (ou use '@mediador')..."
+              placeholder={
+                replyingTo
+                  ? `Respondendo a ${replyingTo.sender}...`
+                  : "Digite anonimamente (ou use '@mediador')..."
+              }
               className="flex-1 bg-[#2a3942] text-[#e9edef] placeholder-[#8696a0] text-xs sm:text-sm px-3.5 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"
             />
 
@@ -432,7 +509,7 @@ export default function AnonymousWhatsAppChat() {
               <div className="flex items-center justify-between border-b border-[#2a3942] pb-3">
                 <h3 className="font-serif font-bold text-base text-[#e9edef] flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  Protocolo de Anonimato & Ciência Política
+                  Regras do Ponto de Debate
                 </h3>
                 <button onClick={() => setShowInfoModal(false)} className="text-[#8696a0] hover:text-white">
                   <X className="w-5 h-5" />
@@ -441,16 +518,13 @@ export default function AnonymousWhatsAppChat() {
 
               <ul className="text-xs text-[#8696a0] space-y-2.5 leading-relaxed">
                 <li className="bg-[#111b21] p-2.5 rounded-lg border border-[#2a3942]">
-                  <strong className="text-[#e9edef]">1. Anonimato Radical:</strong> Ninguém sabe quem você é. Nenhum dado pessoal, IP ou cookies são gravados. Isso elimina o preconceito e o ataque à pessoa.
+                  <strong className="text-[#e9edef]">1. Anonimato & Histórico de 7 Dias:</strong> As mensagens são 100% anônimas e ficam salvas durante a semana para dar continuidade ao debate.
                 </li>
                 <li className="bg-[#111b21] p-2.5 rounded-lg border border-[#2a3942]">
-                  <strong className="text-[#e9edef]">2. O Mediador Julga as Ideias, Não as Pessoas:</strong> O mediador analisa as premissas e os fatos, nunca acusando indivíduos.
+                  <strong className="text-[#e9edef]">2. Função Responder (Reply):</strong> Clique no ícone de seta (↩) em qualquer mensagem para rebater diretamente aquele ponto específico.
                 </li>
                 <li className="bg-[#111b21] p-2.5 rounded-lg border border-[#2a3942]">
-                  <strong className="text-[#e9edef]">3. Sem Falsa Equivalência:</strong> Erros factuais são apontados com fontes (IBGE, Ipea, Legislação).
-                </li>
-                <li className="bg-[#111b21] p-2.5 rounded-lg border border-[#2a3942]">
-                  <strong className="text-[#e9edef]">4. Como Chamar:</strong> Digite <code>@mediador</code> ou clique no botão dourado no topo.
+                  <strong className="text-[#e9edef]">3. Análise em Tempo Real:</strong> O Árbitro analisa cada afirmação ou tréplica com dados oficiais (Câmara, ALESP, IBGE, Inep).
                 </li>
               </ul>
 
