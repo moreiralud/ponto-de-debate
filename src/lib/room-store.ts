@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { Redis } from "@upstash/redis";
 
 export interface ChatMessage {
   id: string;
@@ -15,9 +16,14 @@ interface RoomData {
   lastUpdated: number;
 }
 
+// 7 dias em milissegundos = 7 * 24 * 60 * 60 * 1000 = 604.800.000 ms
+export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+export const SEVEN_DAYS_SECONDS = 7 * 24 * 60 * 60;
+
+// Armazenamento em memória (fallback)
 const memoryRooms: Record<string, RoomData> = {};
 
-// Cores anônimas discretas para os participantes
+// Cores anônimas discretas
 export const ANONYMOUS_COLORS = [
   "#38bdf8", // Azul Céu
   "#fbbf24", // Âmbar
@@ -36,6 +42,20 @@ export function getAnonymousColor(sender: string): string {
   return ANONYMOUS_COLORS[index];
 }
 
+// Inicializa cliente Redis se as variáveis existirem (Vercel KV / Upstash)
+let redisClient: Redis | null = null;
+try {
+  if (
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL
+  ) {
+    redisClient = Redis.fromEnv();
+  }
+} catch (e) {
+  console.warn("Aviso: Redis não configurado no ambiente, operando com cache local.");
+}
+
+// Arquivo local em desenvolvimento
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "rooms.json");
 
@@ -70,14 +90,37 @@ try {
   Object.assign(memoryRooms, loaded);
 } catch (e) {}
 
-export function getRoom(roomId: string = "geral"): RoomData {
+// Filtra para manter somente mensagens dos últimos 7 dias
+function filterLastSevenDays(messages: ChatMessage[]): ChatMessage[] {
+  const cutoff = Date.now() - SEVEN_DAYS_MS;
+  return messages.filter((m) => m.timestamp >= cutoff);
+}
+
+export async function getRoomAsync(roomId: string = "geral"): Promise<RoomData> {
+  // 1. Tenta recuperar do Redis (nuvem)
+  if (redisClient) {
+    try {
+      const redisMessages = await redisClient.get<ChatMessage[]>(`pdd_room_${roomId}`);
+      if (redisMessages && Array.isArray(redisMessages)) {
+        const validMessages = filterLastSevenDays(redisMessages);
+        return {
+          messages: validMessages,
+          lastUpdated: validMessages[validMessages.length - 1]?.timestamp || Date.now(),
+        };
+      }
+    } catch (err) {
+      console.warn("Erro ao buscar no Redis:", err);
+    }
+  }
+
+  // 2. Fallback para memória / disco
   if (!memoryRooms[roomId]) {
     memoryRooms[roomId] = {
       messages: [
         {
           id: "welcome-1",
-          sender: "🏛️ Mediador (Ponto de Debate)",
-          text: "🔒 *Sala 100% Anônima Ativada.*\nNenhum nome é revelado. Ninguém sabe quem você é. Foquem nos argumentos e dados.\n\nQuando quiserem dados e ciência política, usem *@mediador*.",
+          sender: "🏛️ Árbitro do Debate",
+          text: "🔒 *Sala Anônima Ativa.*\nO histórico de mensagens é mantido automaticamente por **7 dias**.\nEnvie qualquer ponto de vista ou acusação para o Árbitro analisar.",
           timestamp: Date.now() - 30000,
           type: "mediator",
         },
@@ -85,16 +128,19 @@ export function getRoom(roomId: string = "geral"): RoomData {
       lastUpdated: Date.now(),
     };
   }
+
+  // Filtra 7 dias na memória
+  memoryRooms[roomId].messages = filterLastSevenDays(memoryRooms[roomId].messages);
   return memoryRooms[roomId];
 }
 
-export function addMessageToRoom(
+export async function addMessageToRoomAsync(
   roomId: string,
   sender: string,
   text: string,
   type: "user" | "mediator" | "system" = "user"
-): ChatMessage {
-  const room = getRoom(roomId);
+): Promise<ChatMessage> {
+  const room = await getRoomAsync(roomId);
   const message: ChatMessage = {
     id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
     sender,
@@ -105,26 +151,52 @@ export function addMessageToRoom(
   };
 
   room.messages.push(message);
-  if (room.messages.length > 100) {
-    room.messages = room.messages.slice(room.messages.length - 100);
+  // Mantém apenas os últimos 7 dias (máximo 200 mensagens)
+  room.messages = filterLastSevenDays(room.messages);
+  if (room.messages.length > 200) {
+    room.messages = room.messages.slice(room.messages.length - 200);
   }
   room.lastUpdated = Date.now();
 
+  // 1. Salva no Redis se disponível (com TTL de 7 dias)
+  if (redisClient) {
+    try {
+      await redisClient.set(`pdd_room_${roomId}`, room.messages, {
+        ex: SEVEN_DAYS_SECONDS,
+      });
+    } catch (err) {
+      console.warn("Erro ao salvar no Redis:", err);
+    }
+  }
+
+  // 2. Salva localmente
+  memoryRooms[roomId] = room;
   saveRoomsToDisk(memoryRooms);
+
   return message;
 }
 
-export function clearRoom(roomId: string = "geral") {
+export async function clearRoomAsync(roomId: string = "geral") {
+  const freshMessages: ChatMessage[] = [
+    {
+      id: `welcome-${Date.now()}`,
+      sender: "🏛️ Árbitro do Debate",
+      text: "🔒 *Sala Reiniciada em Modo 100% Anônimo.*\nO histórico permanecerá salvo por 7 dias. Foquem nos argumentos e fatos.",
+      timestamp: Date.now(),
+      type: "mediator",
+    },
+  ];
+
+  if (redisClient) {
+    try {
+      await redisClient.set(`pdd_room_${roomId}`, freshMessages, {
+        ex: SEVEN_DAYS_SECONDS,
+      });
+    } catch (err) {}
+  }
+
   memoryRooms[roomId] = {
-    messages: [
-      {
-        id: `welcome-${Date.now()}`,
-        sender: "🏛️ Mediador (Ponto de Debate)",
-        text: "🔒 *Sala Reiniciada em Modo 100% Anônimo.*\nNenhum nome é rastreado. Foquem nos argumentos. Usem *@mediador* para checagem factual.",
-        timestamp: Date.now(),
-        type: "mediator",
-      },
-    ],
+    messages: freshMessages,
     lastUpdated: Date.now(),
   };
   saveRoomsToDisk(memoryRooms);

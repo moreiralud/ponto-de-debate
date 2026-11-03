@@ -2,45 +2,13 @@
   "geral": {
     "messages": [
       {
-        "id": "welcome-1793731057840",
+        "id": "welcome-1793731330929",
         "sender": "🏛️ Mediador (Ponto de Debate)",
         "text": "🔒 *Sala Reiniciada em Modo 100% Anônimo.*\nNenhum nome é rastreado. Foquem nos argumentos. Usem *@mediador* para checagem factual.",
-        "timestamp": 1793731057840,
+        "timestamp": 1793731330929,
         "type": "mediator"
-      },
-      {
-        "id": "msg-1793731242188-2j60hv",
-        "sender": "Participante #99",
-        "text": "O MBL é misógino",
-        "timestamp": 1793731242188,
-        "type": "user",
-        "avatarColor": "#2dd4bf"
-      },
-      {
-        "id": "msg-1793731244271-ijrzb2",
-        "sender": "🏛️ Árbitro do Debate",
-        "text": "🏛️ *Árbitro do Debate*\n\n• *A acusação tem sustentação?*\n  - *O que comprova a acusação:* \n    - O caso mais contundente envolve Arthur do Val (\"Mamãe Falei\"), principal cofundador e ex-liderança do MBL em São Paulo, que teve seu mandato cassado por unanimidade na [Fonte: ALESP](https://www.alesp.sp.gov.br) em 2022 após divulgar áudios de cunho sexual e degradante sobre mulheres ucranianas refugiadas de guerra, afirmando que elas \"são fáceis porque são pobres\".\n    - Na prática retórica, o movimento construiu seu capital político sobre campanhas de forte hostilização, deboches e intimidação direcionadas a mulheres públicas e ativistas feministas nas redes sociais.\n    - No Legislativo, parlamentares alinhados ao espectro do movimento registraram histórico de oposição a pautas institucionais de equidade, como projetos de combate à disparidade salarial e cotas para mulheres em órgãos partidários na [Fonte: Câmara dos Deputados](https://www.camara.leg.br).\n  - *O que contesta a acusação:* \n    - O MBL argumenta que adota uma postura estritamente \"antifeminista\" — rejeitando os fundamentos ideológicos do movimento de esquerda —, mas que isso não se traduz em ódio ou discriminação contra as mulheres como indivíduos.\n    - O grupo pontua que expulsou Arthur do Val de seus quadros imediatamente após o escând",
-        "timestamp": 1793731244271,
-        "type": "mediator",
-        "avatarColor": "#0f172a"
-      },
-      {
-        "id": "msg-1793731301190-f6c0rj",
-        "sender": "Participante #99",
-        "text": "O MBL é misógino",
-        "timestamp": 1793731301190,
-        "type": "user",
-        "avatarColor": "#2dd4bf"
-      },
-      {
-        "id": "msg-1793731303327-3vh4ck",
-        "sender": "🏛️ Árbitro do Debate",
-        "text": "🏛️ *Árbitro do Debate*\n\n• *A acusação tem sustentação?*\n  - *O que comprova a acusação:* \n    - O caso mais contundente envolve Arthur do Val (\"Mamãe Falei\"), cofundador e principal liderança histórica do MBL em São Paulo, que teve seu mandato cassado por unanimidade na [Fonte: ALESP](https://www.alesp.sp.gov.br) em 2022 após divulgar áudios de cunho sexual e degradante sobre mulheres ucranianas refugiadas de guerra, afirmando que elas \"são fáceis porque são pobres\".\n    - Na prática retórica, o movimento construiu grande parte de seu capital político sobre campanhas de forte hostilização, deboches e intimidação direcionadas a mulheres públicas, jornalistas e ativistas feministas nas redes sociais.\n    - No Legislativo, parlamentares alinhados ao espectro do movimento registraram histórico de oposição a pautas institucionais de equidade, como projetos de combate à disparidade salarial e cotas para mulheres em órgãos partidários na [Fonte: Câmara dos Deputados](https://www.camara.leg.br).\n  - *O que contesta a acusação:* \n    - O MBL argumenta que adota uma postura estritamente \"antifeminista\" — rejeitando os fundamentos ideológicos do feminismo contemporâneo —, mas que isso não se traduz em ódio ou discriminação contra as mulheres como indivíduos.\n    - O grupo destaca que expulsou Arthur do Val de seus quadros imediatamente após o escândalo de 2022, que elegeu mulheres para cargos públicos (como Amanda Vettorazzo em SP) e que seu programa político defende punições penais severas para crimes sexuais e feminicídios.\n\n• *Veredito Factual:* Institucionalmente, o programa oficial do MBL não prega a misoginia, mas sua prática retórica agressiva e o histórico documentado de seus principais expoentes dão forte sustentação empírica à acusação.",
-        "timestamp": 1793731303327,
-        "type": "mediator",
-        "avatarColor": "#0f172a"
       }
     ],
-    "lastUpdated": 1793731303327
+    "lastUpdated": 1793731330929
   }
 }

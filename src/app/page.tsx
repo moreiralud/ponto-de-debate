@@ -46,16 +46,28 @@ export default function AnonymousWhatsAppChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Inicializa a identidade 100% anônima para esta sessão
+  // Inicializa a identidade 100% anônima e restaura o histórico de 7 dias
   useEffect(() => {
     let savedId = sessionStorage.getItem("pdd_anon_id");
     if (!savedId) {
-      // Gera um número aleatório único para o participante (ex: Participante #42)
       const num = Math.floor(Math.random() * 90 + 10);
       savedId = `Participante #${num}`;
       sessionStorage.setItem("pdd_anon_id", savedId);
     }
     setMyAnonId(savedId);
+
+    // Carrega histórico persistente dos últimos 7 dias imediatamente do cache do aparelho
+    try {
+      const cached = localStorage.getItem("pdd_history_7d");
+      if (cached) {
+        const parsed: ChatMessage[] = JSON.parse(cached);
+        const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const valid = parsed.filter((m) => m.timestamp >= cutoff);
+        if (valid.length > 0) {
+          setMessages(valid);
+        }
+      }
+    } catch (e) {}
   }, []);
 
   const scrollToBottom = (smooth = true) => {
@@ -71,8 +83,22 @@ export default function AnonymousWhatsAppChat() {
         const res = await fetch(`/api/room?roomId=geral&since=0`);
         if (!res.ok) return;
         const data = await res.json();
-        if (isMounted && data.allMessages) {
-          setMessages(data.allMessages);
+        if (isMounted && data.allMessages && Array.isArray(data.allMessages)) {
+          const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+          setMessages((prev) => {
+            const map = new Map<string, ChatMessage>();
+            prev.forEach((m) => map.set(m.id, m));
+            data.allMessages.forEach((m: ChatMessage) => map.set(m.id, m));
+            const merged = Array.from(map.values())
+              .filter((m) => m.timestamp >= cutoff)
+              .sort((a, b) => a.timestamp - b.timestamp);
+
+            try {
+              localStorage.setItem("pdd_history_7d", JSON.stringify(merged));
+            } catch (e) {}
+
+            return merged;
+          });
         }
       } catch (err) {
         console.error("Erro no polling:", err);
@@ -149,6 +175,9 @@ export default function AnonymousWhatsAppChat() {
   const handleClearRoom = async () => {
     if (confirm("Reiniciar o debate da sala? Todas as mensagens serão limpas.")) {
       await fetch("/api/room?roomId=geral", { method: "DELETE" });
+      try {
+        localStorage.removeItem("pdd_history_7d");
+      } catch (e) {}
       setMessages([]);
     }
   };

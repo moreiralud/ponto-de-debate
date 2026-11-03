@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRoom, addMessageToRoom, clearRoom, ChatMessage } from "@/lib/room-store";
+import {
+  getRoomAsync,
+  addMessageToRoomAsync,
+  clearRoomAsync,
+  ChatMessage,
+} from "@/lib/room-store";
 import { generateMediation } from "@/lib/gemini";
 
 export const runtime = "nodejs";
@@ -9,11 +14,12 @@ export async function GET(req: NextRequest) {
   const roomId = searchParams.get("roomId") || "geral";
   const since = Number(searchParams.get("since") || 0);
 
-  const room = getRoom(roomId);
+  const room = await getRoomAsync(roomId);
 
-  const newMessages = since > 0
-    ? room.messages.filter((m) => m.timestamp > since)
-    : room.messages;
+  const newMessages =
+    since > 0
+      ? room.messages.filter((m) => m.timestamp > since)
+      : room.messages;
 
   return NextResponse.json({
     messages: newMessages,
@@ -39,13 +45,11 @@ export async function POST(req: NextRequest) {
 
     let userMessage: ChatMessage | null = null;
     if (text) {
-      userMessage = addMessageToRoom(roomId, sender, text, "user");
+      userMessage = await addMessageToRoomAsync(roomId, sender, text, "user");
     }
 
-    const room = getRoom(roomId);
+    const room = await getRoomAsync(roomId);
 
-    // Avalia se deve analisar:
-    // Analisa TODA mensagem que chegue (exceto monossílabos ou risadas)
     const isTrivial =
       text.length < 4 ||
       /^(kkk+|rsrs+|haha+|oi|olá|ola|blz|ok|beleza|sim|não|nao|valeu)$/i.test(text.trim());
@@ -80,7 +84,7 @@ Instruções fundamentais:
         const mediatorText = await generateMediation(prompt);
 
         if (mediatorText) {
-          mediatorMessage = addMessageToRoom(
+          mediatorMessage = await addMessageToRoomAsync(
             roomId,
             "🏛️ Árbitro do Debate",
             mediatorText,
@@ -110,6 +114,6 @@ Instruções fundamentais:
 export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const roomId = searchParams.get("roomId") || "geral";
-  clearRoom(roomId);
+  await clearRoomAsync(roomId);
   return NextResponse.json({ success: true, message: "Sala reiniciada com sucesso." });
 }
