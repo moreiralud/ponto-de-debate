@@ -13,6 +13,8 @@ import {
   Lock,
   X,
   Reply,
+  RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { ChatMessage, ReplyContext } from "@/lib/room-store";
 import { FormattedText } from "@/lib/formatter";
@@ -43,6 +45,7 @@ export default function AnonymousWhatsAppChat() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [replyingTo, setReplyingTo] = useState<ReplyContext | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +78,7 @@ export default function AnonymousWhatsAppChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
   };
 
-  // Polling contínuo em tempo real (1.5s)
+  // Polling contínuo em tempo real (1.5s) e sincronização resiliente
   useEffect(() => {
     let isMounted = true;
 
@@ -98,6 +101,15 @@ export default function AnonymousWhatsAppChat() {
               localStorage.setItem("pdd_history_7d", JSON.stringify(merged));
             } catch (e) {}
 
+            // Se o histórico local possui mais mensagens que o servidor (ex: reinício frio de container), sincroniza de volta
+            if (merged.length > data.allMessages.length) {
+              fetch("/api/room", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ roomId: "geral", messages: merged }),
+              }).catch(() => {});
+            }
+
             return merged;
           });
         }
@@ -119,7 +131,7 @@ export default function AnonymousWhatsAppChat() {
     scrollToBottom(true);
   }, [messages.length, isMediatorThinking]);
 
-  // Envio de mensagem com suporte a Reply
+  // Envio de mensagem com suporte a Reply e retenção garantida
   const handleSendMessage = async (e?: React.FormEvent, explicitTrigger = false, overrideText?: string) => {
     if (e) e.preventDefault();
     const textToSend = overrideText !== undefined ? overrideText : inputText;
@@ -145,11 +157,26 @@ export default function AnonymousWhatsAppChat() {
       });
 
       if (res.ok) {
-        const updatedRes = await fetch(`/api/room?roomId=geral&since=0`);
-        const updatedData = await updatedRes.json();
-        if (updatedData.allMessages) {
-          setMessages(updatedData.allMessages);
-        }
+        const resData = await res.json();
+        const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        setMessages((prev) => {
+          const map = new Map<string, ChatMessage>();
+          prev.forEach((m) => map.set(m.id, m));
+          if (resData.userMessage) map.set(resData.userMessage.id, resData.userMessage);
+          if (resData.mediatorMessage) map.set(resData.mediatorMessage.id, resData.mediatorMessage);
+          if (resData.allMessages && Array.isArray(resData.allMessages)) {
+            resData.allMessages.forEach((m: ChatMessage) => map.set(m.id, m));
+          }
+          const merged = Array.from(map.values())
+            .filter((m) => m.timestamp >= cutoff)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+          try {
+            localStorage.setItem("pdd_history_7d", JSON.stringify(merged));
+          } catch (e) {}
+
+          return merged;
+        });
       }
     } catch (err) {
       console.error("Falha ao enviar:", err);
@@ -186,12 +213,45 @@ export default function AnonymousWhatsAppChat() {
   };
 
   const handleClearRoom = async () => {
-    if (confirm("Reiniciar o debate da sala? Todas as mensagens serão limpas.")) {
+    if (confirm("ATENÇÃO: Deseja realmente zerar todo o histórico de 7 dias para todos os participantes da sala?")) {
       await fetch("/api/room?roomId=geral", { method: "DELETE" });
       try {
         localStorage.removeItem("pdd_history_7d");
       } catch (e) {}
       setMessages([]);
+      setShowInfoModal(false);
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch(`/api/room?roomId=geral&since=0`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.allMessages && Array.isArray(data.allMessages)) {
+          const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+          setMessages((prev) => {
+            const map = new Map<string, ChatMessage>();
+            prev.forEach((m) => map.set(m.id, m));
+            data.allMessages.forEach((m: ChatMessage) => map.set(m.id, m));
+            const merged = Array.from(map.values())
+              .filter((m) => m.timestamp >= cutoff)
+              .sort((a, b) => a.timestamp - b.timestamp);
+            try {
+              localStorage.setItem("pdd_history_7d", JSON.stringify(merged));
+            } catch (e) {}
+            return merged;
+          });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => {
+        setIsRefreshing(false);
+        scrollToBottom(true);
+      }, 400);
     }
   };
 
@@ -240,13 +300,14 @@ export default function AnonymousWhatsAppChat() {
               <span>Chamar Mediador</span>
             </button>
 
-            {/* Clear Chat */}
+            {/* Sincronizar Histórico */}
             <button
-              onClick={handleClearRoom}
-              className="p-1.5 rounded-lg text-[#8696a0] hover:text-[#e9edef] hover:bg-[#374248] transition"
-              title="Limpar sala"
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="p-1.5 rounded-lg text-[#8696a0] hover:text-emerald-400 hover:bg-[#374248] transition"
+              title="Sincronizar mensagens agora"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-emerald-400" : ""}`} />
             </button>
           </div>
         </header>
@@ -534,6 +595,16 @@ export default function AnonymousWhatsAppChat() {
               >
                 Entendi, voltar ao debate
               </button>
+
+              <div className="pt-2 border-t border-[#2a3942]/60">
+                <button
+                  onClick={handleClearRoom}
+                  className="w-full text-[11px] text-red-400/80 hover:text-red-300 hover:bg-red-950/30 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Zerar histórico de 7 dias (Para todos)
+                </button>
+              </div>
             </div>
           </div>
         )}

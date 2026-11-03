@@ -2,13 +2,60 @@
   "geral": {
     "messages": [
       {
-        "id": "welcome-1793731330929",
-        "sender": "🏛️ Mediador (Ponto de Debate)",
-        "text": "🔒 *Sala Reiniciada em Modo 100% Anônimo.*\nNenhum nome é rastreado. Foquem nos argumentos. Usem *@mediador* para checagem factual.",
-        "timestamp": 1793731330929,
+        "id": "welcome-1",
+        "sender": "🏛️ Árbitro do Debate",
+        "text": "🔒 *Sala Anônima Ativa.*\nO histórico permanece salvo por **7 dias**.",
+        "timestamp": 1793728922229,
         "type": "mediator"
+      },
+      {
+        "id": "msg-1793732042887-ajzm2k",
+        "sender": "Participante #68",
+        "text": "o que é misoginia?",
+        "timestamp": 1793732042887,
+        "type": "user",
+        "avatarColor": "#a78bfa"
+      },
+      {
+        "id": "msg-1793732044767-yx9mgy",
+        "sender": "🏛️ Árbitro do Debate",
+        "text": "🏛️ *Árbitro do Debate*\n\n• *A acusação/pergunta tem sustentação?*\n  - *O que define e comprova a misoginia na prática política brasileira:* Misoginia é o ódio, desprezo ou preconceito sistemático contra mulheres. No debate político nacional, esse conceito ganhou forte tração empírica devido a episódios documentados. O caso mais emblemático ocorreu com Arthur do Val (\"Mamãe Falei\"), principal expoente do MBL em São Paulo, cujos áudios degradantes sobre mulheres ucranianas (\"são fáceis porque são pobres\") resultaram em sua [Cassação unânime por quebra de decoro na ALESP](https://www.alesp.sp.gov.br). A isso somam-se a retórica agressiva de redes contra mulheres públicas, oposição histórica a cotas partidárias femininas e barreiras a políticas de equidade na [Câmara dos Deputados](https://www.camara.leg.br).\n  - *O que contesta a acusação:* Grupos acusados de práticas misóginas argumentam que rejeitam o feminismo institucional (identificado à esquerda), mas não as mulheres. Apontam a expulsão de membros após escândalos, a filiação e eleição de mulheres para cargos de relevo e a defesa de penas mais severas para crimes como o feminicídio.\n\n• *Veredito Factual:* Misoginia não é mera divergência ideológica; é um padrão comportamental de desumanização e subjugação de gênero que encontrou respaldo factual e comprovação institucional em episódios graves de assédio e sexismo na política brasileira recente.",
+        "timestamp": 1793732044767,
+        "type": "mediator",
+        "avatarColor": "#0f172a",
+        "replyTo": {
+          "id": "msg-1793732042887-ajzm2k",
+          "sender": "Participante #68",
+          "text": "o que é misoginia?"
+        }
+      },
+      {
+        "id": "msg-1793732813481-bt24a1",
+        "sender": "Participante #12",
+        "text": "Mas o MBL também expulsou o Mamãe Falei logo depois do ocorrido.",
+        "timestamp": 1793732813481,
+        "type": "user",
+        "avatarColor": "#34d399",
+        "replyTo": {
+          "id": "msg-1793732044767-yx9mgy",
+          "sender": "🏛️ Árbitro do Debate",
+          "text": "O caso mais emblemático ocorreu com Arthur do Val"
+        }
+      },
+      {
+        "id": "msg-1793732816642-w7ae4k",
+        "sender": "🏛️ Árbitro do Debate",
+        "text": "🏛️ *Árbitro do Debate*\n\n• *A tréplica tem sustentação?*\n  - *O que comprova a tréplica:* É um fato histórico documentado que o Movimento Brasil Livre (MBL) protocolou a expulsão de Arthur do Val (\"Mamãe Falei\") de seus quadros logo após o vazamento dos áudios machistas sobre as ucranianas em 2022, antes mesmo do trâmite final de sua cassação na [Assembleia Legislativa de São Paulo (ALESP)](https://www.alesp.sp.gov.br). O grupo agiu rapidamente para tentar blindar sua marca institucional do impacto político do escândalo.\n  - *O que limita o argumento:* A expulsão tardia, embora pragmática para a imagem pública do movimento, não apaga o fato de que Arthur do Val era o principal porta-voz, fundador e principal vetor de crescimento eleitoral do MBL por anos. Críticos apontam que a medida foi uma contenção de danos inevitável diante da gravidade pública do caso, e não o início de uma autocrítica estrutural sobre o padrão de retórica adotado por seus influenciadores.\n\n• *Veredito Factual:* A expulsão é um fato verdadeiro e documentado, mas serve apenas como contenção de danos institucional, não anulando a responsabilidade política do grupo por ter projetado e blindado o comportamento de seu principal expoente até o limite insustentável da repercussão pública.",
+        "timestamp": 1793732816642,
+        "type": "mediator",
+        "avatarColor": "#0f172a",
+        "replyTo": {
+          "id": "msg-1793732813481-bt24a1",
+          "sender": "Participante #12",
+          "text": "Mas o MBL também expulsou o Mamãe Falei logo depois do ocorrido."
+        }
       }
     ],
-    "lastUpdated": 1793731330929
+    "lastUpdated": 1793732825672
   }
 }

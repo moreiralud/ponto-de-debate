@@ -3,6 +3,7 @@ import {
   getRoomAsync,
   addMessageToRoomAsync,
   clearRoomAsync,
+  syncMessagesWithRoomAsync,
   ChatMessage,
   ReplyContext,
 } from "@/lib/room-store";
@@ -108,16 +109,46 @@ Instruções fundamentais:
       }
     }
 
+    const updatedRoom = await getRoomAsync(roomId);
+
     return NextResponse.json({
       success: true,
       userMessage,
       mediatorMessage,
-      lastUpdated: room.lastUpdated,
+      allMessages: updatedRoom.messages,
+      lastUpdated: updatedRoom.lastUpdated,
     });
   } catch (error: any) {
     console.error("Erro na rota /api/room:", error);
     return NextResponse.json(
       { error: error?.message || "Erro interno no processamento da mensagem." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const roomId = body.roomId || "geral";
+    const messages = body.messages;
+
+    if (!Array.isArray(messages)) {
+      return NextResponse.json(
+        { error: "Campo 'messages' deve ser um array." },
+        { status: 400 }
+      );
+    }
+
+    const room = await syncMessagesWithRoomAsync(roomId, messages);
+    return NextResponse.json({
+      success: true,
+      allMessages: room.messages,
+      lastUpdated: room.lastUpdated,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || "Erro ao sincronizar mensagens." },
       { status: 500 }
     );
   }
